@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Document</title>
+</head>
+
+<body>
+	<div>
+		<div id="textContainer" style="margin-bottom: 20px;"></div>
+		<input type="text" value="" id="inputtttt">
+	</div>
+</body>
+<script>
+	(function () {
+		const textContainer = document.querySelector('#textContainer')
+		const inputtttt = document.querySelector('#inputtttt')
+		
+		class Coffee {
+			constructor([key, value]) {
+				this.defineReactive(this, key)
+				this.options = {
+					data: value
+				}
+				this.data = value
+			}
+			defineReactive(obj, key) {
+				Object.defineProperty(obj, key, {
+					enumerable: true,
+					configurable: true,
+					get: () => {
+						this.getData(key)
+					},
+					set: newVal => {
+						console.log('拦截设置')
+						this.setValue(key, newVal)
+					}
+				})
+			}
+			getData(key) {
+				return this.options[key]
+			}
+			setValue(key, value) {
+				this.options[key] = textContainer.innerText = value
+			}
+		}
+
+		let _coffee = new Coffee(['data','初始化文本'])
+
+		textContainer.oninput = (e) => {
+			const _value = e.target.value
+			_coffee.data = _value
+		}
+
+		function setView () {
+			// console.log(`执行_coffee.data = "${inputtttt.value}"`)
+			_coffee.data = inputtttt.value
+		}
+
+		inputtttt.oninput = setView
+
+		window.coffee = _coffee
+	}())
+</script>
+
+</html>
