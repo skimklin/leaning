@@ -11,7 +11,7 @@ const CoffeeInstance = Coffee.prototype
 CoffeeInstance._init = function(options) {
 	this.$options = options
 	this.$el = document.querySelector(options.el)
-	this.$data = options.data
+	this.$data = typeof options.data === 'function' ? options.data() : options.data
 	this.$methods = options.methods
 	//_binding保存着model与view的映射关系，也就是我们前面定义的Watcher的实例。当model改变时，我们会触发其中的指令类更新，保证view也能实时更新
 	this._binding = {}
@@ -23,7 +23,9 @@ CoffeeInstance._init = function(options) {
 CoffeeInstance._obverse = function(object) {
 	let value
 	for (const key of Object.keys(object)) {
+		// 初始化数据依赖
 		this._binding[key] = {
+			// 保存依赖该数据的watchers
 			_directives: []
 		}
 		// 保存键名
@@ -35,6 +37,7 @@ CoffeeInstance._obverse = function(object) {
 			this._obverse(value)
 		}
 
+		// 定义数据拦截
 		Object.defineProperty(this.$data, key, {
 			enumerable: true,
 			configurable: true,
@@ -47,6 +50,7 @@ CoffeeInstance._obverse = function(object) {
 				if (value !== newValue) {
 					value = newValue
 
+					// 数据变动触发watchers更新视图
 					binding._directives.forEach(item => {
 						item.update()
 					})
@@ -59,10 +63,10 @@ CoffeeInstance._obverse = function(object) {
 // 更新视图函数
 function Watcher(name, el, vm, exp, attr) {
 	this.name = name
-	this.el = el
-	this.vm = vm
-	this.exp = exp
-	this.attr = attr
+	this.el = el // 真实dom
+	this.vm = vm // vm实例
+	this.exp = exp // 指令绑定的key => 对应data中的key
+	this.attr = attr // 真实dom的key
 
 	this.update()
 }
@@ -86,7 +90,7 @@ CoffeeInstance._compile = function(root) {
 			if (UTILS.analysisDirective(node, eventName)) {
 				node[`on${eventName}`] = (() => {
 					const attrVal = UTILS.getDirectiveVal(node, eventName)
-					//bind是使data的作用域与method函数的作用域保持一致
+					// bind是使data的作用域与method函数的作用域保持一致
 					return this.$methods[attrVal].bind(this.$data)
 				})()
 			}
@@ -95,7 +99,6 @@ CoffeeInstance._compile = function(root) {
 		// model指令
 		if (UTILS.analysisDirective(node, 'model') && (node.tagName == 'INPUT' || node.tagName == 'TEXTAREA')) {
 			node.addEventListener('input', (currentNode => {
-				console.log(currentNode)
 				const attrVal = UTILS.getDirectiveVal(node, 'model')
 				this._binding[attrVal]._directives.push(new Watcher(
 					'input',

@@ -11,6 +11,7 @@
 		<div>
 				<input type="text" coffee-model="count">
 				<button coffee-click="addCount">数字+1</button>
+				<button coffee-click="minusCount">数字-1</button>
 		</div>
 			<h3 coffee-bind="count"></h3>
 	</div>
@@ -22,12 +23,17 @@
 
 		new Coffee({
 			el: '#app',
-			data: {
-				count: 10
+			data() {
+				return {
+					count: 10
+				}
 			},
 			methods: {
 				addCount() {
 					this.count++
+				},
+				minusCount() {
+					this.count--
 				}
 			}
 		})
