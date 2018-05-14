@@ -1,6 +1,4 @@
-import UTILS from './utils'
-import CONSTANT from './constant'
-
+typeof function() {
 // 定义构造函数
 function Coffee(options) {
 	this._init(options)
@@ -10,7 +8,7 @@ function Coffee(options) {
 const CoffeeInstance = Coffee.prototype
 
 // 添加原型方法
-CoffeeInstance._init = options => {
+CoffeeInstance._init = function(options) {
 	this.$options = options
 	this.$el = document.querySelector(options.el)
 	this.$data = options.data
@@ -22,7 +20,7 @@ CoffeeInstance._init = options => {
 }
 
 // 定义数据拦截
-CoffeeInstance._obverse = object => {
+CoffeeInstance._obverse = function(object) {
 	let value
 	for (const key of Object.keys(object)) {
 		this._binding[key] = {
@@ -70,12 +68,12 @@ function Watcher(name, el, vm, exp, attr) {
 }
 
 // 更新视图方法
-Watcher.prototype.update = () => {
+Watcher.prototype.update = function() {
 	this.el[this.attr] = this.vm.$data[this.exp]
 }
 
 // 接下来我们定义一个 _compile 函数，用来解析我们的指令（v-bind,v-model,v-clickde）等，并在这个过程中对view与model进行绑定。
-CoffeeInstance._compile = root => {
+CoffeeInstance._compile = function(root) {
 	const nodes = root.children
 
 	for (node of nodes) {
@@ -95,8 +93,9 @@ CoffeeInstance._compile = root => {
 		})
 
 		// model指令
-		if (UTILS.analysisDirective(node, 'model') && (node.tagName == 'input' || node.tagName == 'textarea')) {
-			node.addEventListener('input', (key => {
+		if (UTILS.analysisDirective(node, 'model') && (node.tagName == 'INPUT' || node.tagName == 'TEXTAREA')) {
+			node.addEventListener('input', (currentNode => {
+				console.log(currentNode)
 				const attrVal = UTILS.getDirectiveVal(node, 'model')
 				this._binding[attrVal]._directives.push(new Watcher(
 					'input',
@@ -107,9 +106,9 @@ CoffeeInstance._compile = root => {
 				))
 
 				return () => {
-					this.$data[attrVal] = node[key].value
+					this.$data[attrVal] = currentNode.value
 				}
-			})())
+			})(node))
 		}
 
 		// 绑定指令 
@@ -126,4 +125,5 @@ CoffeeInstance._compile = root => {
 	}
 }
 
-export default Coffee
+window.Coffee = Coffee
+}()

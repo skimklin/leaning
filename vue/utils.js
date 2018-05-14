@@ -1,5 +1,4 @@
-import CONSTANT from './constant'
-
+void function() {
 const UTILS = {}
 
 UTILS.analysisDirective = (node, directiveName) => {
@@ -10,4 +9,5 @@ UTILS.getDirectiveVal = (node, directiveName) => {
 	return node.getAttribute(`${CONSTANT.DIRECTIVE_HEAD}-${directiveName}`)
 }
 
-export default CONSTANT
+window.UTILS = UTILS
+}()
