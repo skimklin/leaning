@@ -5,8 +5,8 @@ CONSTANT.DIRECTIVE_HEAD = 'coffee'
 
 // 生命周期
 CONSTANT.LIFE_CYCLES = {
-	beforeCreate: 'beforeCoffeeCreate',
-	created: 'coffeeCreated'
+	beforeCreate: 'beforeCreate',
+	created: 'created'
 }
 
 // 需要代理的项

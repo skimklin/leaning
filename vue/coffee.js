@@ -1,5 +1,4 @@
 typeof
-
 function () {
 	// 定义构造函数
 	function Coffee(options) {
@@ -26,8 +25,9 @@ function () {
 		UTILS.callLifeHook.call(this, CONSTANT.LIFE_CYCLES.beforeCreate)
 
 		this.$el = document.querySelector(options.el)
-		this.$data = options.data
-		this.$methods = options.methods
+		this.$data = options.data || {}
+		this.$methods = options.methods || {}
+		this.$computed = options.computed || {}
 		//_binding保存着model与view的映射关系，也就是我们前面定义的Watcher的实例。当model改变时，我们会触发其中的指令类更新，保证view也能实时更新
 		this._binding = {}
 		this._obverse(this.$data)
@@ -77,13 +77,15 @@ function () {
 		}
 	}
 
-	// 设置通过this访问的代理
+	// 设置通过this访问的代理 
+	// 这里和vue不同,这里的methods存放在实例的$methods下面,
+	// 这时通过this访问methods的成员也需要通过代理来实现
 	CoffeeInstance._initProxy = function (vue) {
 		// 需要代理的keys
 		const _proxy = CONSTANT.PROXY_OPTIONS.reduce((pre, proxyKey) => {
 			if (vue[`$${proxyKey}`]) {
 				for (const [key, value] of Object.entries(vue[`$${proxyKey}`])) {
-					if (pre[key]) {
+					if (pre[key] !== undefined) {
 						console.error(
 							`"${key}" has already defined`
 						)
@@ -92,7 +94,7 @@ function () {
 					}
 				}
 			}
-			
+
 			return pre
 		}, {})
 
@@ -101,7 +103,7 @@ function () {
 				configurable: true,
 				enumerable: true,
 				get: () => {
-					return this.$data[key] || this.$methods[key]
+					return this.$data[key] || this.$methods[key] || this.$computed[key]
 				},
 				set: (val) => {
 					this.$data[key] = val
@@ -122,11 +124,12 @@ function () {
 	}
 
 	// 更新视图方法
+	// TODO属性通用设置方法
 	Watcher.prototype.update = function () {
-		this.el[this.attr] = this.vm.$data[this.exp]
+		this.el[this.attr] = this.vm[this.exp]
 	}
 
-	// 接下来我们定义一个 _compile 函数，用来解析我们的指令（v-bind,v-model,v-clickde）等，并在这个过程中对view与model进行绑定。
+	// 接下来我们定义一个 _compile 函数，用来解析我们的指令（v-bind,v-model,v-click）等，并在这个过程中对view与model进行绑定。
 	CoffeeInstance._compile = function (root) {
 		const nodes = root.children
 
@@ -141,7 +144,15 @@ function () {
 					node[`on${eventName}`] = (() => {
 						const attrVal = UTILS.getDirectiveVal(node, eventName)
 						// bind是使data的作用域与method函数的作用域保持一致
-						return this.$methods[attrVal].bind(this)
+						if (!this[attrVal]) {
+							return () => {
+								console.error(
+									`${attrVal} is not defined`
+								)
+							}
+						}
+
+						return this[attrVal].bind(this)
 					})()
 				}
 			})
@@ -159,7 +170,7 @@ function () {
 					))
 
 					return () => {
-						this.$data[attrVal] = currentNode.value
+						this[attrVal] = currentNode.value
 					}
 				})(node))
 			}
