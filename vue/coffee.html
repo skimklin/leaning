@@ -12,15 +12,15 @@
 	<div id="app">
 		<div>
 			<input type="text" coffee-model="count">
+			<input type="text" coffee-model="test">
 			<button coffee-click="addCount">数字+1</button>
 			<button coffee-click="minusCount">数字-1</button>
 			<button coffee-click="startCount">开始加数</button>
 			<button coffee-click="stopCount">停止加数</button>
 		</div>
-		<h3 coffee-bind="count" coffee-bind:innerCount="count" :testText="test">
-			{{innerCount}} --- {{testText}}
+		<h3 :innerCount="count" :testText="test">
+			数字 : {{innerCount}} ---  文字 : {{testText}}
 		</h3>
-		
 	</div>
 
 	<script src="./constant.js"></script>
@@ -31,14 +31,14 @@
 			el: '#app',
 
 			created() {
-				
+				console.log(this)
 			},
 
 			data() {
 				return {
 					count: 10,
 					continueCont: false,
-					test: '这是测试'
+					test: '字'
 				}
 			},
 

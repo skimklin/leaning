@@ -5,9 +5,6 @@ const matchBindValue = /[\'|\"]([\w]+)[\'|\"]/
 
 function getBindingAttr (node) {
 	const _htmlText = node.outerHTML
-	console.log(_htmlText)
-	console.log(attribute)
-	console.log(_htmlText.match(attribute))
 }
 
 function analysisBinding(node) {
@@ -64,9 +61,7 @@ UTILS.callLifeHook = function(lifeCycleName) {
 UTILS.setBindingData = function ({ dom, vm, setValData, domInner }) {
 	let domContent = domInner
 	for (const [propsData, keyInData] of setValData) {
-		console.log(propsData, keyInData)
 		const matchExp = new RegExp('\{\{\\s*' + propsData + '\\s*\}\}', 'ig')
-		console.log(matchExp, domContent.match(matchExp))
 		domContent = domContent.replace(matchExp, vm[keyInData])
 	}
 	dom.innerHTML = domContent

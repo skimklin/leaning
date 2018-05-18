@@ -69,10 +69,10 @@ function () {
 			Object.defineProperty(this.$data, key, {
 				enumerable: true,
 				configurable: true,
-				get() {
+				get: () => {
 					return value
 				},
-				set(newValue) {
+				set: (newValue) => {
 					if (value !== newValue) {
 						value = newValue
 
@@ -112,7 +112,7 @@ function () {
 				configurable: true,
 				enumerable: true,
 				get: () => {
-					return this.$data[key] || this.$methods[key] || this.$computed[key]
+					return typeof this.$data[key] !== undefined ? this.$data[key] : (this.$methods[key] || this.$computed[key])
 				},
 				set: (val) => {
 					this.$data[key] = val
@@ -136,14 +136,14 @@ function () {
 		this.setValData = setValData
 		this.domInner = dom.innerHTML
 
-		this.update()
+		// this.update()
 	}
 
 	// 更新视图方法
 	Watcher.prototype.update = function () {
 		 switch (typeof this.setValue) {
 			 case 'string': {
-				this.attr && (this.dom[this.attr] = this.vm[this.setValue])
+				this.dom[this.attr] = this.vm[this.setValue]
 				break
 			 }
 			 case 'function': {
@@ -165,6 +165,23 @@ function () {
 		for (node of nodes) {
 			if (node.children && node.children.length) {
 				this._compile(node)
+			}
+
+			// bind指令
+			const analysisDirectiveResult = UTILS.analysisDirective(node, 'bind')
+			if (analysisDirectiveResult) {
+				for (const [propData, attrVal] of analysisDirectiveResult) {
+					this._binding[attrVal]._directives.push(new Watcher(
+						{
+							domName: 'text', 
+							dom: node,
+							vm: this,
+							setValue: UTILS.setBindingData,
+							attr: '',
+							setValData: analysisDirectiveResult
+						}
+					))
+				}
 			}
 
 			// 事件指令
@@ -205,25 +222,51 @@ function () {
 					}
 				})(node))
 			}
+		}
 
-			// 绑定指令 
-			const analysisDirectiveResult = UTILS.analysisDirective(node, 'bind')
-			if (analysisDirectiveResult) {
-				for (const [propData, attrVal] of analysisDirectiveResult) {
-					this._binding[attrVal]._directives.push(new Watcher(
-						{
-							domName: 'text', 
-							dom: node, 
-							vm: this, 
-							setValue: UTILS.setBindingData,
-							attr: '',
-							setValData: analysisDirectiveResult
-						}
-					))
-				}
+		this._updateBindings()
+	}
+
+	// 更新binding中所有依赖项
+	CoffeeInstance._updateBindings = function () {
+		for (const key of Object.keys(this._binding)) {
+			const watchers = this._binding[key]._directives
+			if (watchers && watchers.length) {
+				watchers.forEach(fn => fn.update && fn.update())
 			}
 		}
 	}
+
+	// nextTick实现
+	// const hasImmediate = typeof setImmediate === undefined
+	// const doNextTick = hasImmediate ? setImmediate : setTimeout
+	// const eventList = []
+	// const callEventList = () => {
+	// 	console.log('执行nextTick')
+	// 	if (!hasImmediate) {
+	// 		const timer = doNextTick(() => {
+	// 			eventList.forEach(fn => {
+	// 				fn()
+	// 			})
+	// 			clearTimeout(timer)
+	// 		}, 0)
+	// 	} else {
+	// 		doNextTick(() => {
+	// 			eventList.forEach(fn => {
+	// 				fn()
+	// 			})
+	// 		})
+	// 	}
+	// }
+	// let eventOnWait = false
+
+	// CoffeeInstance.$nextTick = function (fn) {
+	// 	if (typeof fn === 'function') eventList.push(fn)
+	// 	if (!eventOnWait) {
+	// 		callEventList()
+	// 	}
+	// }
+
 
 	window.Coffee = Coffee
 }()
