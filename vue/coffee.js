@@ -18,7 +18,6 @@ function () {
 
 	// 添加原型方法
 	CoffeeInstance._init = function (options) {
-		options.data = typeof options.data === 'function' ? options.data() : options.data
 		this.$options = options
 		// 保存生命周期到实例当中
 		this._initLifeHook(this.$options)
@@ -29,8 +28,8 @@ function () {
 		// 保存根元素,compile时从根元素开始向下遍历
 		this.$el = document.querySelector(options.el)
 		// 保存数据项
-		this.$data = options.data || {}
-		this.$methods = options.methods || {}
+		this.$data = typeof options.data === 'function' ? options.data() : options.data || {}
+		this.$methods = Object.keys(options.methods || {}).forEach(method => this[method] = options.methods[method])
 		this.$computed = options.computed || {}
 		//_binding保存着model与view的映射关系，也就是我们前面定义的Watcher的实例。当model改变时，我们会触发其中的指令类更新，保证view也能实时更新
 		this._binding = {}
@@ -48,6 +47,7 @@ function () {
 	}
 
 	// 定义数据拦截
+	// TODO initComputed
 	CoffeeInstance._obverse = function (object) {
 		for (const key of Object.keys(object)) {
 			let value
@@ -69,10 +69,10 @@ function () {
 			Object.defineProperty(this.$data, key, {
 				enumerable: true,
 				configurable: true,
-				get: () => {
+				get() {
 					return value
 				},
-				set: (newValue) => {
+				set(newValue) {
 					if (value !== newValue) {
 						value = newValue
 
@@ -112,7 +112,11 @@ function () {
 				configurable: true,
 				enumerable: true,
 				get: () => {
-					return typeof this.$data[key] !== undefined ? this.$data[key] : (this.$methods[key] || this.$computed[key])
+					if (typeof this.$data[key] !== undefined) {
+						return this.$data[key]
+					} else {
+						return this.$computed[key]
+					}
 				},
 				set: (val) => {
 					this.$data[key] = val
