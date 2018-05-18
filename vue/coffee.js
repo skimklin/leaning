@@ -134,6 +134,7 @@ function () {
 		this.setValue = setValue
 		this.attr = attr // 真实dom的key
 		this.setValData = setValData
+		this.domInner = dom.innerHTML
 
 		this.update()
 	}
@@ -149,7 +150,8 @@ function () {
 				this.setValue({
 					dom: this.dom,
 					vm: this.vm,
-					setValData: this.setValData
+					setValData: this.setValData,
+					domInner: this.domInner
 				})
 				break
 			 }

@@ -61,8 +61,8 @@ UTILS.callLifeHook = function(lifeCycleName) {
 	})
 }
 
-UTILS.setBindingData = function ({ dom, vm, setValData }) {
-	let domContent = dom.innerHTML
+UTILS.setBindingData = function ({ dom, vm, setValData, domInner }) {
+	let domContent = domInner
 	for (const [propsData, keyInData] of setValData) {
 		console.log(propsData, keyInData)
 		const matchExp = new RegExp('\{\{\\s*' + propsData + '\\s*\}\}', 'ig')
