@@ -17,7 +17,10 @@
 			<button coffee-click="startCount">开始加数</button>
 			<button coffee-click="stopCount">停止加数</button>
 		</div>
-		<h3 coffee-bind="count"></h3>
+		<h3 coffee-bind="count" coffee-bind:innerCount="count" :testText="test">
+			{{innerCount}} --- {{testText}}
+		</h3>
+		
 	</div>
 
 	<script src="./constant.js"></script>
@@ -34,7 +37,8 @@
 			data() {
 				return {
 					count: 10,
-					continueCont: false
+					continueCont: false,
+					test: '这是测试'
 				}
 			},
 

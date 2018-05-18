@@ -1,4 +1,8 @@
 // TODO解析bind指令的值
+const matchBindExp = /\s[\w+-bind]*:[\w]+=([\'|\"](\S*)[\'|\"]|\w+)/g
+const matchBindKey = /:([\w]+)=/
+const matchBindValue = /[\'|\"]([\w]+)[\'|\"]/
+
 function getBindingAttr (node) {
 	const _htmlText = node.outerHTML
 	console.log(_htmlText)
@@ -6,14 +10,37 @@ function getBindingAttr (node) {
 	console.log(_htmlText.match(attribute))
 }
 
+function analysisBinding(node) {
+	const _htmlText = node.outerHTML
+	const matchers = _htmlText.match(matchBindExp)
+	let matchResults = null
+	if (matchers && matchers.length) {
+		matchResults = matchers.map(e => {
+			return [
+				e.match(matchBindKey)[1],
+				e.match(matchBindValue)[1]
+			]
+		})
+	}
+	return matchResults
+}
+
 
 void function() {
 const UTILS = {}
 
 UTILS.analysisDirective = (node, directiveName) => {
-	return node.hasAttribute(`${CONSTANT.DIRECTIVE_HEAD}-${directiveName}`)
+	switch (directiveName) {
+		case 'bind': {
+			return analysisBinding(node)
+		}
+		default: {
+			return node.hasAttribute(`${CONSTANT.DIRECTIVE_HEAD}-${directiveName}`)
+		}
+	}
 }
 
+// 调用生命周期
 UTILS.getDirectiveVal = (node, directiveName) => {
 	switch (directiveName) {
 		case 'bind': {
@@ -25,12 +52,24 @@ UTILS.getDirectiveVal = (node, directiveName) => {
 	}
 }
 
+// 调用生命周期
 UTILS.callLifeHook = function(lifeCycleName) {
 	if (!this[`$${lifeCycleName}`]) return
 
 	this[`$${lifeCycleName}`].forEach(lifeCycle => {
 		lifeCycle && lifeCycle.call(this)
 	})
+}
+
+UTILS.setBindingData = function ({ dom, vm, setValData }) {
+	let domContent = dom.innerHTML
+	for (const [propsData, keyInData] of setValData) {
+		console.log(propsData, keyInData)
+		const matchExp = new RegExp('\{\{\\s*' + propsData + '\\s*\}\}', 'ig')
+		console.log(matchExp, domContent.match(matchExp))
+		domContent = domContent.replace(matchExp, vm[keyInData])
+	}
+	dom.innerHTML = domContent
 }
 
 window.UTILS = UTILS
