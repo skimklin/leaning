@@ -1,4 +1,5 @@
 // TODO解析bind指令的值
+// 解析bind或者:指令并匹配其值
 const matchBindExp = /\s[\w+-bind]*:[\w]+=([\'|\"](\S*)[\'|\"]|\w+)/g
 const matchBindKey = /:([\w]+)=/
 const matchBindValue = /[\'|\"]([\w]+)[\'|\"]/

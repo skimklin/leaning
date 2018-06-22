@@ -88,7 +88,7 @@ function () {
 
 	// 设置通过this访问的代理 
 	// 这里和vue不同,这里的methods存放在实例的$methods下面,
-	// 这时通过this访问methods的成员也需要通过代理来实现
+	// 这里通过this访问methods的成员也是通过代理来实现的,与vue的做法不一致
 	CoffeeInstance._initProxy = function (vue) {
 		// 需要代理的keys
 		const _proxy = CONSTANT.PROXY_OPTIONS.reduce((pre, proxyKey) => {
