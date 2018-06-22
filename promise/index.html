@@ -11,15 +11,20 @@
   <script>
     var a = new Cromise((resolve, reject) => {
       setTimeout(() => {
-        resolve(1111)
-      }, 1000)
+        resolve('first then')
+      }, 2000)
     })
 
     a.then(res => {
       console.log(res)
+      return 'second then'
     })
-      .then(() => {
-        console.log('second then')
+      .then(res => {
+        console.log(res)
+        return 'third then'
+      })
+      .then(res => {
+        console.log(res)
       })
   
   </script>

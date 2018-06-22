@@ -35,11 +35,11 @@ instance.changeStatus = function(status) {
   }
 }
 
-// TODO promise链式调用,promise第二个then依赖第一个then的返回值
+// promise链式调用时,后一个的参数为第一个then的返回值
 instance.callCromise = function(data) {
   if (this[this.status].length)
-    for (const fn of this[this.status])
-      fn(data)
+    for (const [index, fn] of this[this.status].entries())
+      this[this.status][index] = fn(index ? this[this.status][index - 1] : data)
 }
 
 instance.then = function(onfulfilled, onrejected) {
