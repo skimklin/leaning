@@ -10,21 +10,35 @@
   <script src="./promise.js"></script>
   <script>
     var a = new Cromise((resolve, reject) => {
+      // console.log(x)
+      // resolve('first then')
       setTimeout(() => {
         resolve('first then')
-      }, 2000)
+      }, 1000)
     })
 
-    a.then(res => {
-      console.log(res)
-      return 'second then'
-    })
-      .then(res => {
+    a.then().then(res => {
         console.log(res)
+        return new Cromise(resolve => {
+          setTimeout(() => {
+            resolve('second then')
+          }, 1000)
+        })
+        // return 'second then'
+      }).then(res => {
+        console.log(res)
+        // return new Cromise(resolve => { 
+        //   setTimeout(() => {
+        //     resolve('third then')
+        //   }, 1000) 
+        // })
         return 'third then'
       })
       .then(res => {
         console.log(res)
+      })
+      .catch(error => {
+        console.log(error)
       })
   
   </script>
