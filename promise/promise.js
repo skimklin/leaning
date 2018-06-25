@@ -24,6 +24,7 @@ function changeStatusAndCallFnFn(status) {
       callCromise.call(this)
   }
 }
+
 // promise链式调用时,后一个的参数为第一个then的返回值
 function callCromise() {
   if (this[this.status] && this[this.status].length)
