@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <script src="./promise.js"></script>
+  <script>
+    var a = new Cromise((resolve, reject) => {
+      // console.log(x)
+      // resolve('first then')
+      setTimeout(() => {
+        resolve('first then')
+      }, 1000)
+    })
+
+    a.then().then(res => {
+        console.log(res)
+        return new Cromise(resolve => {
+          setTimeout(() => {
+            resolve('second then')
+          }, 1000)
+        })
+        // return 'second then'
+      }).then(res => {
+        console.log(res)
+        // return new Cromise(resolve => { 
+        //   setTimeout(() => {
+        //     resolve('third then')
+        //   }, 1000) 
+        // })
+        return 'third then'
+      })
+      .then(res => {
+        console.log(res)
+      })
+      .catch(error => {
+        console.log(error)
+      })
+
+  </script>
+</body>
+</html>
