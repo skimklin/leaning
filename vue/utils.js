@@ -23,6 +23,29 @@ function analysisBinding(node) {
 	return matchResults
 }
 
+// vue nextTick宏任务的使用顺序,依次为setImmediate,MessageChannel,setTimeout
+// 以下是源码
+// if (typeof setImmediate !== 'undefined' && isNative(setImmediate)) {
+//   macroTimerFunc = () => {
+//     setImmediate(flushCallbacks)
+//   }
+// } else if (typeof MessageChannel !== 'undefined' && (
+//   isNative(MessageChannel) ||
+//   // PhantomJS
+//   MessageChannel.toString() === '[object MessageChannelConstructor]'
+// )) {
+//   const channel = new MessageChannel()
+//   const port = channel.port2
+//   channel.port1.onmessage = flushCallbacks
+//   macroTimerFunc = () => {
+//     port.postMessage(1)
+//   }
+// } else {
+//   /* istanbul ignore next */
+//   macroTimerFunc = () => {
+//     setTimeout(flushCallbacks, 0)
+//   }
+// }
 
 void function() {
 const UTILS = {}

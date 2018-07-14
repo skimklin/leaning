@@ -51,11 +51,11 @@ class Cromise {
   }
 
   static resolve() {
-    
+     
   }
 
   static reject() {
-
+    
   }
 
   static all() {

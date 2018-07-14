@@ -42,7 +42,6 @@
 			array[targetIndex],
 			array[sourceIndex]
 		]
-
 		// console.log('exchangeValue => start: %s, end: %s', sourceIndex, targetIndex)
 	}
 
