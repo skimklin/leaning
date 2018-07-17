@@ -27,12 +27,21 @@
         // return 'second then'
       }).then(res => {
         console.log(res)
+        return new Cromise(resolve => { 
+          setTimeout(() => {
+            resolve('third then')
+          }, 1000) 
+        })
+        // return 'third then'
+      })
+      .then(res => {
+        console.log(res)
         // return new Cromise(resolve => { 
         //   setTimeout(() => {
-        //     resolve('third then')
+        //     resolve('fourth then')
         //   }, 1000) 
         // })
-        return 'third then'
+        return 'fourth then'
       })
       .then(res => {
         console.log(res)

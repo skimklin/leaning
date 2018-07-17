@@ -4,7 +4,7 @@ const REJECTED = 'rejected'
 
 function changeStatus(status, res) {
   if (this.status === PENDING) {
-    Object.defineProperties(this, { 
+    Object.defineProperties(this, {
       status: {
         configurable: false,
         writable: false,
@@ -39,12 +39,15 @@ class Cromise {
     }
     this.status = PENDING
 
+    const macrotask = setTimeout
     this[FULLFILLED] = []
     this[REJECTED] = []
     this.result = null
 
     try {
-      executor(changeStatusAndCallFnFn.call(this, FULLFILLED), changeStatusAndCallFnFn.call(this, REJECTED))
+      macrotask(
+        executor(changeStatusAndCallFnFn.call(this, FULLFILLED), changeStatusAndCallFnFn.call(this, REJECTED))
+      )
     } catch(error) {
       changeStatusAndCallFnFn.call(this, REJECTED)(error)
     }
@@ -63,25 +66,13 @@ class Cromise {
   }
 
   then(onfulfilled, onrejected) {
-    if (this.status === FULLFILLED) {
-      onfulfilled && (this[FULLFILLED] = [onfulfilled])
-      onrejected && (this[REJECTED] = [onrejected])
-      callCromise.call(this)
-    } else {
-      onfulfilled && this[FULLFILLED].push(onfulfilled)
-      onrejected && this[REJECTED].push(onrejected)
-    }
+    onfulfilled && this[FULLFILLED].push(onfulfilled)
+    onrejected && this[REJECTED].push(onrejected)
     return this
   }
 
   catch(onrejected) {
-    if (this.status === REJECTED) {
-      onrejected && (this[REJECTED] = [onrejected])
-      callCromise.call(this)
-      if (this.result instanceof Cromise) return this.result
-    } else {
-      onrejected && this[REJECTED].push(onrejected)
-    }
+    onrejected && this[REJECTED].push(onrejected)
     return this
   }
 }
