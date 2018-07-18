@@ -4,15 +4,26 @@ class Observer {
   }
 }
 
-function defineReact(val) {
+function def(object, key, val, enumerable) {
+  Object.defineProperty(object, key, {
+    value: val,
+    enumerable: !!enumerable,
+    writable: true,
+    configurable: true
+  })
+}
+
+function defineReact(val, bySetter) {
   if (typeof val !== 'object' || val === null) {
     return
   }
 
-  let object = val
-  // if (!object._ob_ instanceof Observer) {
-  //   object._ob_ = new Observer(val)
-  // }
+  const object = val
+  if (object.__ob__ instanceof Observer && !bySetter) {
+    return
+  } else {
+    def(object, '__ob__', new Observer(object))
+  }
 
   Object.keys(object).forEach(key => {
 
@@ -28,7 +39,7 @@ function defineReact(val) {
         console.log('设置了属性: %s', key)
         // do something
         object[key] = value = newValue
-        // defineReact(value)
+        defineReact(value, true)
       }
     })
 
@@ -39,13 +50,3 @@ function defineReact(val) {
     }
   })
 }
-
-var data = {
-  count: 10,
-  name: 'qweasd',
-  obj: {
-    name: 'lqw'
-  }
-}
-
-defineReact(data)
