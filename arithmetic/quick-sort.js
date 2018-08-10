@@ -63,12 +63,10 @@
       endValue = getCompareValue(end)
 
       while (endValue >= compareBase && end > start) {
-        end--
-        endValue = getCompareValue(end)
+        endValue = getCompareValue(--end)
       }
       while (startValue <= compareBase && start < end) {
-        start++
-        startValue = getCompareValue(start)
+        startValue = getCompareValue(++start)
       }
       if (start !== end) exchangeValue(array, start, end)
     }
