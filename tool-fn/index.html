@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+  <button id="test">test</button>
+  <script src="./debounce.js"></script>
+  <script>
+    const test = debounce(info => console.log(info), 1000, true)
+
+    let count = 1
+    document.querySelector('#test').onclick = function() {
+      test(count++)
+    }
+  </script>
+</body>
+</html>

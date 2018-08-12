@@ -39,13 +39,13 @@ class Cromise {
     }
     this.status = PENDING
 
-    const macrotask = setTimeout
+    this.macrotask = setTimeout
     this[FULLFILLED] = []
     this[REJECTED] = []
     this.result = null
 
     try {
-      macrotask(
+      this.macrotask(
         executor(changeStatusAndCallFnFn.call(this, FULLFILLED), changeStatusAndCallFnFn.call(this, REJECTED))
       )
     } catch(error) {
@@ -53,12 +53,16 @@ class Cromise {
     }
   }
 
-  static resolve() {
-     
+  static resolve(executor) {
+    this.macrotask(
+      executor(changeStatusAndCallFnFn.call(this, FULLFILLED))
+    )
   }
 
   static reject() {
-    
+    this.macrotask(
+      executor(changeStatusAndCallFnFn.call(this, REJECTED))
+    )
   }
 
   static all() {
