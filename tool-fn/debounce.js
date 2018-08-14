@@ -25,7 +25,7 @@ function debounce (func, wait = 50, immediate = true) {
         context = this
         args = params
       }
-    } else if (now() < last) {
+    } else {
       clearTimeout(timer)
       timer = timeoutReset()
     }
