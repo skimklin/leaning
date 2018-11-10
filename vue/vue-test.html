@@ -14,12 +14,21 @@
   <div id="app">
     {{someProp}}
     <button @click="doST">c+</button>
+    <child></child>
   </div>
 </body>
 <script src="https://cdn.jsdelivr.net/npm/vue"></script>
 <script>
+  const child = Vue.component('child', {
+    template: '<div></div>'
+  })
+
   new Vue({
     el: '#app',
+
+    components: {
+      child
+    },
 
     data() {
       return {
@@ -40,7 +49,7 @@
     },
 
     created() {
-
+      console.log(this)
     },
 
     methods: {
@@ -50,6 +59,65 @@
       }
     }
   })
+</script>
+
+<script>
+  const now = () => +new Date()
+  const debounce = function(func, wait, immediate) {
+    var timeout, args, context, timestamp, result;
+
+    var later = function() {
+      console.log('run later')
+      // 现在和上一次时间戳比较
+      var last = now() - timestamp;
+      // 如果当前间隔时间少于设定时间且大于0就重新设置定时器
+      if (last < wait && last >= 0) {
+        timeout = setTimeout(later, wait - last);
+      } else {
+        // 否则的话就是时间到了执行回调函数
+        timeout = null;
+        if (!immediate) {
+          result = func.apply(context, args);
+          if (!timeout) context = args = null;
+        }
+      }
+    };
+
+    return function() {
+      context = this;
+      args = arguments;
+      // 获得时间戳
+      timestamp = now();
+      // 如果定时器不存在且立即执行函数
+      var callNow = immediate && !timeout;
+      // 如果定时器不存在就创建一个
+      // 定时器存在则清除当前定时器并重新设定一个新的定时器
+      if (!timeout) {
+        timeout = setTimeout(later, wait);
+      } else {
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      }
+      if (callNow) {
+        // 如果需要立即执行函数的话 通过 apply 执行
+        result = func.apply(context, args);
+        context = args = null;
+      }
+
+      return result;
+    };
+  };
+
+  const test = debounce(val => console.log(val), 1000, false)
+  let timer = null
+
+  timer = setInterval(() => {
+    test('aaa')
+  }, 500)
+
+  setTimeout(() => {
+    clearInterval(timer)
+  }, 3000);
 </script>
 
 </html>
