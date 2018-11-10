@@ -22,4 +22,4 @@ export const isUndefined = value => value === undefined
 
 export const isNull = value => value === null
 
-export const isStringNumber = value => isString(value) && !isNaN(value)
+export const isStringNumber = value => isString(value) && !isNaN(+value)

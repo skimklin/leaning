@@ -21,14 +21,14 @@ const makeObjectChecker = (userValidator, options) => {
               type
             )} on key "${key}",but got ${value}`
       }
-      if (required) {
+      if (valid && required) {
         valid = !TYPE.isUndefined(value)
         message = valid
           ? ''
           : (errorMessage.required && errorMessage.required(key, value)) ||
             `missing required parameter: "${key}"`
       }
-      if (validator) {
+      if (valid && validator) {
         return validator(value)
       }
       return { valid, message }

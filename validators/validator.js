@@ -52,7 +52,18 @@ export default class Validator {
         return !this.result.valid
       })
 
-      return this.result
+      const result = {
+        ...this.result,
+      }
+      this.reset()
+      return result
+    }
+
+    this.reset = () => {
+      this.result = {
+        valid: true,
+        message: '',
+      }
     }
 
     Object.defineProperties(this.add, {
