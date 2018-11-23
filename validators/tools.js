@@ -2,11 +2,12 @@ import Validator from './validator'
 import * as TYPE from './typeChecker'
 
 const makeObjectChecker = (userValidator, options) => {
-  const { errorMessage = {}} = options
-  const _validator = new Validator()
+  const { errorMessage = {} } = options
+  const validatorIntance = new Validator()
 
   const createValidatorItem = (key, checker) => {
     const { required, type, validator } = checker
+    const { message: defineMessage } = userValidator[key]
 
     return val => {
       const value = val[key]
@@ -16,54 +17,56 @@ const makeObjectChecker = (userValidator, options) => {
         valid = TYPE.createTypeChecker(type)(value)
         message = valid
           ? ''
-          : (errorMessage.type && errorMessage.type(key, value)) ||
+          : defineMessage ||
+            (errorMessage.type && errorMessage.type(key, value)) ||
             `supposed type ${TYPE.getType(
               type
             )} on key "${key}",but got ${value}`
       }
       if (valid && required) {
-        valid = !TYPE.isUndefined(value)
+        valid = Boolean(value)
         message = valid
           ? ''
-          : (errorMessage.required && errorMessage.required(key, value)) ||
+          : defineMessage ||
+            (errorMessage.required && errorMessage.required(key, value)) ||
             `missing required parameter: "${key}"`
       }
       if (valid && validator) {
-        return validator(value)
+        return validator(value, val)
       }
       return { valid, message }
     }
   }
 
   Object.keys(userValidator).forEach(validatorKey => {
-    _validator.add(
+    validatorIntance.add(
       createValidatorItem(validatorKey, userValidator[validatorKey]),
       `illegal parameter on key: "${validatorKey}"`
     )
   })
-  return _validator
+  return validatorIntance
 }
 
 // valid each object parameters
-export const makeObjectValidator = (validator, options = {}) => {
-  const _validator = new Validator()
+export const objectValidator = (validator, options = {}) => {
+  const validatorIntance = new Validator()
     .add(TYPE.isObject, options.typeError || 'parameter should be [Object]')
     .add(makeObjectChecker(validator, options))
-  return value => _validator.run(value)
+  return validatorIntance.run
 }
 
 // valid each array element with object validator
-export const makeObjectInArrayValidator = (validator, options = {}) => {
-  const checker = makeObjectChecker(validator, options)
-  const _validator = new Validator()
+export const arrayValidator = (validator, options = {}) => {
+  const validatorIntance = new Validator()
     .add(Array.isArray, options.typeError || 'parameter should be [Array]')
     .add(array => {
       const result = {
         valid: true,
-        message: '',
+        message: ''
       }
       array.some(e => {
-        const res = checker.run(e)
+        const res =
+          validator instanceof Validator ? validator.run(e) : Validator(e)
         if (TYPE.isObject(res) && res.valid === false) {
           Object.assign(result, res)
         }
@@ -72,7 +75,7 @@ export const makeObjectInArrayValidator = (validator, options = {}) => {
       return result
     })
 
-  return value => _validator.run(value)
+  return validatorIntance.run
 }
 
 // uesage
@@ -100,13 +103,13 @@ export const makeObjectInArrayValidator = (validator, options = {}) => {
 //   },
 //   comment: {
 //     type: Array,
-//     validator: makeObjectInArrayValidator(
-//       {
+//     validator: arrayValidator(
+//       objectValidator({
 //         text: {
 //           required: true,
 //           type: String,
 //         },
-//       },
+//       }),
 //       {
 //         typeError: 'comment字段必须是一个数组',
 //       }
@@ -118,7 +121,7 @@ export const makeObjectInArrayValidator = (validator, options = {}) => {
 //   required: key => `字段 "${key}" 缺失`,
 //   type: key => `字段 ${key} 类型错误`,
 // }
-// const updateValidator = makeObjectValidator(updateParams, { errorMessage })
+// const updateValidator = objectValidator(updateParams, { errorMessage })
 
 // const res = updateValidator({
 //   id: 1,
